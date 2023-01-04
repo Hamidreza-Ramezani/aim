@@ -238,11 +238,12 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
 
 int main()
 {
+    //this reset function cleans up the heap.
     mem_reset();
-    uint32_t tasklet_id = me();
+    uint32_t tasklet_id = me();   //index of this tasklet
 
     // Load parameters
-    uint32_t params_m = (uint32_t)DPU_MRAM_HEAP_POINTER;
+    uint32_t params_m = (uint32_t)dpu_mram_heap_pointer;  //https://sdk.upmem.com/2021.4.0/031_DPURuntimeService_Memory.html#dpu-mram-heap-pointer-explanation-label
     DPUParams params_w;
     mram_read((__mram_ptr void const *)params_m, &params_w, ROUND_UP_MULTIPLE_8(sizeof(DPUParams)));
     uint32_t nb_reads_per_dpu = params_w.dpuNumReads;

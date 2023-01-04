@@ -93,6 +93,7 @@ for NR_TASKLETS in range(1, 21):
         NR_TASKLETS = NR_TASKLETS-1
         break
 
+#NR_TASKLETS=24
 
 if NR_TASKLETS == 0:
     if memory_upper_limit >= (62000 - 1024):

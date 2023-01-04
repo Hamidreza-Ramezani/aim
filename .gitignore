@@ -1,2 +1,11 @@
 **/out
 **/build
+Datasets/ERR240727-l100-e1-5MPairs
+Datasets/SRR826460-l150-e1-5MPairs
+Datasets/SRR826471-l250-e1-5MPairs
+Datasets/raw/*
+
+*out*
+
+
+
