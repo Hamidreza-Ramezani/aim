@@ -138,6 +138,12 @@ int main(int argc, char *argv[])
 
     // Timing and profiling
     Timer timer;
+
+    FILE *file;
+    file = fopen("performance.log", "a+");
+    if (file == NULL) { 
+       printf("the file does not exist\n");
+    }
     float loadTime = 0.0f, dpuTime = 0.0f, retrieveTime = 0.0f;
 #if ENERGY
     struct dpu_probe_t probe;
@@ -270,7 +276,7 @@ int main(int argc, char *argv[])
     stopTimer(&timer);
     loadTime += getElapsedTime(timer);
     printf("CPU-DPU: %f ms\n", loadTime * 1e3);
-
+    fprintf(file, "CPU->DPU: %f,\t", loadTime * 1e3);
     for (int dpu_idx = 0; dpu_idx < nr_of_dpus; ++dpu_idx)
     {
         free(dpu_requests[dpu_idx]);
@@ -297,6 +303,7 @@ int main(int argc, char *argv[])
     stopTimer(&timer);
     dpuTime += getElapsedTime(timer);
     printf("DPU Kernel: %f ms\n", dpuTime * 1e3);
+    fprintf(file, "DPU Kernel: %f,\t", dpuTime * 1e3);
 
     result_t *dpuResults[nr_of_dpus];
 #ifdef BACKTRACE
@@ -328,6 +335,7 @@ int main(int argc, char *argv[])
     stopTimer(&timer);
     retrieveTime += getElapsedTime(timer);
     printf("DPU-CPU: %f ms\n", retrieveTime * 1e3);
+    fprintf(file, "DPU->CPU: %f,\t", retrieveTime * 1e3);
 
     for (int dpu = 0; dpu < nr_of_dpus; ++dpu)
     {
