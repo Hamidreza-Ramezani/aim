@@ -27,11 +27,6 @@ program3="./build/host ${data}/SRR826471-l250-e1-5MPairs ./out 5000000"
 program4="./build/host ${data}/synthetic-l500-e1-5MPairs ./out 5000000"
 program5="./build/host ${data}/synthetic-l1000-e1-5MPairs ./out 5000000"
 
-program1="python3 run*.py -i ${data}/ERR240727-l100-e1-5MPairs -l 100 -e 0.01 -n 5000000 -b -t $tasklets_num -d $dpu_num"
-program2="python3 run*.py -i ${data}/SRR826460-l150-e1-5MPairs -l 150 -e 0.01 -n 5000000 -b -d $dpu_num"
-program3="python3 run*.py -i ${data}/SRR826471-l250-e1-5MPairs -l 250 -e 0.01 -n 5000000 -b -d $dpu_num"
-program4="python3 run*.py -i ${data}/synthetic-l500-e1-5MPairs -l 500 -e 0.01 -n 5000000 -b -d $dpu_num"
-program5="python3 run*.py -i ${data}/synthetic-l1000-e1-5MPairs -l 1000 -e 0.01 -n 5000000 -b -d $dpu_num"
 
 #rm -rf build/
 #eval $compile1
@@ -50,7 +45,31 @@ program5="python3 run*.py -i ${data}/synthetic-l1000-e1-5MPairs -l 1000 -e 0.01 
 #perf stat -e power/energy-pkg/,power/energy-ram/ $program5
 
 
-$program1
+rm -rf build/
+eval $compile1
+dpu-profiling memory-transfer $program1
+#rm -rf build/
+#eval $compile2
+#$program2
+#rm -rf build/
+#eval $compile3
+#$program3
+#rm -rf build/
+#eval $compile4
+#$program4
+#rm -rf build/
+#eval $compile5
+#$program5
+
+
+#program1="python3 run*.py -i ${data}/ERR240727-l100-e1-5MPairs -l 100 -e 0.01 -n 5000000 -b -t $tasklets_num -d $dpu_num"
+#program2="python3 run*.py -i ${data}/SRR826460-l150-e1-5MPairs -l 150 -e 0.01 -n 5000000 -b -d $dpu_num"
+#program3="python3 run*.py -i ${data}/SRR826471-l250-e1-5MPairs -l 250 -e 0.01 -n 5000000 -b -d $dpu_num"
+#program4="python3 run*.py -i ${data}/synthetic-l500-e1-5MPairs -l 500 -e 0.01 -n 5000000 -b -d $dpu_num"
+#program5="python3 run*.py -i ${data}/synthetic-l1000-e1-5MPairs -l 1000 -e 0.01 -n 5000000 -b -d $dpu_num"
+
+
+#$program1
 #$program2
 #$program3
 #$program4
@@ -62,9 +81,13 @@ $program1
 #end=`date +%s.%N`
 #echo "$end - $start" | bc -l 
 
+#compile1="make NR_TASKLETS=18 NR_DPUS=DPU_ALLOCATE_ALL FLAGS=\"-DMAX_SCORE=5 -DREAD_SIZE=112 -DBACKTRACE -DWRAM_SEGMENT=2432\""
+#see here: /sys/devices/power/events
+
+
 rm dpu-out
 rm out
 rm performance.log
 
 
-#NR_DPUS=DPU_ALLOCATE_ALL
+
