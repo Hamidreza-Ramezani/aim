@@ -47,7 +47,15 @@ program5="./build/host ${data}/synthetic-l1000-e1-5MPairs ./out 5000000"
 
 rm -rf build/
 eval $compile1
-dpu-profiling memory-transfer $program1
+#perf stat -e power/energy-ram/ $program1
+#likwid-powermeter -m $program1
+likwid-perfctr -C 0-63 -g ENERGY -m $program1
+#start=`date +%s.%N`
+#$program1
+#end=`date +%s.%N`
+#echo "$end - $start" | bc -l 
+
+
 #rm -rf build/
 #eval $compile2
 #$program2
@@ -85,8 +93,8 @@ dpu-profiling memory-transfer $program1
 #see here: /sys/devices/power/events
 
 
-rm dpu-out
-rm out
+#rm dpu-out
+#rm out
 rm performance.log
 
 

@@ -23,7 +23,7 @@ DPU_SOURCES := $(wildcard ${DPU_DIR}/wfa.c ${DPU_DIR}/wfa_backtracing.c ${DPU_DI
 __dirs := $(shell mkdir -p ${BUILDDIR})
 
 COMMON_FLAGS := -I${COMMON_INCLUDES} -Wall
-HOST_FLAGS := ${COMMON_FLAGS} -std=c11 -O3 `dpu-pkg-config --cflags --libs dpu` -DNR_TASKLETS=${NR_TASKLETS} -DNR_DPUS=${NR_DPUS} ${FLAGS}
+HOST_FLAGS := ${COMMON_FLAGS} -std=c11 -O3  `dpu-pkg-config --cflags --libs dpu` -DNR_TASKLETS=${NR_TASKLETS} -DNR_DPUS=${NR_DPUS} ${FLAGS} -DLIKWID_PERFMON -I/usr/local/include -L/usr/local/lib -llikwid
 DPU_FLAGS := ${COMMON_FLAGS} -O3 ${FLAGS} -DNR_TASKLETS=${NR_TASKLETS}
 
 all: ${HOST_TARGET}  ${DPU_TARGET}

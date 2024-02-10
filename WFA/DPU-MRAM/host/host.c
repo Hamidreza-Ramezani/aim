@@ -66,6 +66,19 @@ SOFTWARE. */
 #include <dpu_probe.h>
 #endif
 
+//#ifdef LIKWID_PERFMON
+//#include <likwid-marker.h>
+//#else
+#define LIKWID_MARKER_INIT
+#define LIKWID_MARKER_THREADINIT
+#define LIKWID_MARKER_SWITCH
+#define LIKWID_MARKER_REGISTER(regionTag)
+#define LIKWID_MARKER_START(regionTag)
+#define LIKWID_MARKER_STOP(regionTag)
+#define LIKWID_MARKER_CLOSE
+#define LIKWID_MARKER_GET(regionTag, nevents, events, time, count)
+//#endif
+
 void edit_cigar_print(
     edit_cigar_t *const edit_cigar, FILE *out)
 {
@@ -101,10 +114,14 @@ uint32_t get_reads(FILE *in, request_t *dpu_requests, char *dpu_patterns, char *
     uint32_t nb_reads = 0;
     for (nb_reads = 0; nb_reads < nb_reads_per_dpu; ++nb_reads)
     {
+        //line1 = ">AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        //line1_length = 102;
         line1_length = getline(&line1, &line1_allocated, in);
         if (line1_length == -1)
             break;
 
+        //line2 = "<AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
+        //line2_length = 102;
         line2_length = getline(&line2, &line2_allocated, in);
         if (line2_length == -1)
             break;
@@ -204,6 +221,9 @@ int main(int argc, char *argv[])
     char *dpu_patterns[nr_of_dpus];
     char *dpu_texts[nr_of_dpus];
 
+    //float preprocessingTime = 0.0f;
+    //startTimer(&timer);
+
     for (int dpu_idx = 0; dpu_idx < nr_of_dpus; ++dpu_idx)
     {
         dpu_requests[dpu_idx] = (request_t *)malloc(nb_reads_per_dpu * (sizeof(request_t)));
@@ -214,6 +234,13 @@ int main(int argc, char *argv[])
         dpuParams[dpu_idx].dpuNumReads = nb_reads;
     }
 
+    //stopTimer(&timer);
+    //preprocessingTime += getElapsedTime(timer);
+    //printf("preprocessingTime: %f ms\n", preprocessingTime * 1e3);
+
+    LIKWID_MARKER_INIT;
+    LIKWID_MARKER_START("Hamid");
+    //LIKWID_MARKER_STOP("Hamid");
     startTimer(&timer);
     uint32_t each_dpu;
     uint32_t dpuParams_m = 0;
@@ -245,6 +272,8 @@ int main(int argc, char *argv[])
         dpuParams[each_dpu].dpuOperations_m = dpuOperations_m;
         dpuParams[each_dpu].mramTotalAllocated = ROUND_UP_MULTIPLE_8(allocator.totalAllocated);
     }
+    LIKWID_MARKER_STOP("Hamid");
+    LIKWID_MARKER_CLOSE;
 
     // Parallel Transfers of the Input
     printf("Copying data to DPU\n");
