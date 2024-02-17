@@ -46,8 +46,9 @@ program5="./build/host ${data}/synthetic-l1000-e1-5MPairs ./out 5000000"
 
 
 rm -rf build/
-eval $compile1
-dpu-profiling memory-transfer $program1
+eval $compile4
+$program4
+#dpu-profiling memory-transfer $program1
 #rm -rf build/
 #eval $compile2
 #$program2

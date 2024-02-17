@@ -189,9 +189,15 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    startTimer(&timer);
     DPU_ASSERT(dpu_alloc(NR_DPUS, NULL, &dpu_set));
     DPU_ASSERT(dpu_load(dpu_set, DPU_BINARY, NULL));
     DPU_ASSERT(dpu_get_nr_dpus(dpu_set, &nr_of_dpus));
+    stopTimer(&timer);
+    float initTime = 0.0f;
+    initTime += getElapsedTime(timer);
+    printf("DPU initialization: %f ms\n", initTime * 1e3);
+
     printf("Allocated %d DPU(s)\n", nr_of_dpus);
 
     uint32_t nb_reads_per_dpu = ROUND_UP_MULTIPLE_8(((total_nb_reads) / nr_of_dpus));
