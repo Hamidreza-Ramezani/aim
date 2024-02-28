@@ -46,8 +46,11 @@ program5="./build/host ${data}/synthetic-l1000-e1-5MPairs ./out 5000000"
 
 
 rm -rf build/
-eval $compile4
-$program4
+eval $compile1
+start=`date +%s.%N`
+$program1
+end=`date +%s.%N`
+echo "$end - $start" | bc -l 
 #dpu-profiling memory-transfer $program1
 #rm -rf build/
 #eval $compile2
