@@ -6,14 +6,11 @@ output_dir="${dir}/output"
 performance_log="${dir}/performance.log"
 data="/data/hamid/dataset"
 
-
-
 #dpu_num=(1 2 4 8 16 32 64)
 #tasklets_num=(1 4 8 16 19)
 
 dpu_num=("2304")
 tasklets_num=("18")
-
 
 #2400-DPUs
 compile1="make NR_TASKLETS=18 NR_DPUS=2304 FLAGS=\"-DMAX_SCORE=5 -DREAD_SIZE=112 -DBACKTRACE -DWRAM_SEGMENT=2432\""
@@ -26,7 +23,6 @@ program2="./build/host ${data}/SRR826460-l150-e1-5MPairs ./out 5000000"
 program3="./build/host ${data}/SRR826471-l250-e1-5MPairs ./out 5000000"
 program4="./build/host ${data}/synthetic-l500-e1-5MPairs ./out 5000000"
 program5="./build/host ${data}/synthetic-l1000-e1-5MPairs ./out 5000000"
-
 
 #rm -rf build/
 #eval $compile1
@@ -44,10 +40,9 @@ program5="./build/host ${data}/synthetic-l1000-e1-5MPairs ./out 5000000"
 #eval $compile5
 #perf stat -e power/energy-pkg/,power/energy-ram/ $program5
 
-
-rm -rf build/
-eval $compile4
-$program4
+#rm -rf build/
+#eval $compile5
+#$program5
 #dpu-profiling memory-transfer $program1
 #rm -rf build/
 #eval $compile2
@@ -62,20 +57,17 @@ $program4
 #eval $compile5
 #$program5
 
+program1="python3 run*.py -i ${data}/ERR240727-l100-e1-5MPairs -l 100 -e 0.01 -n 5000000 -b -t $tasklets_num -d $dpu_num"
+program2="python3 run*.py -i ${data}/SRR826460-l150-e1-5MPairs -l 150 -e 0.01 -n 5000000 -b -d $dpu_num"
+program3="python3 run*.py -i ${data}/SRR826471-l250-e1-5MPairs -l 250 -e 0.01 -n 5000000 -b -d $dpu_num"
+program4="python3 run*.py -i ${data}/synthetic-l500-e1-5MPairs -l 500 -e 0.01 -n 5000000 -b -d $dpu_num"
+program5="python3 run*.py -i ${data}/synthetic-l1000-e1-5MPairs -l 1000 -e 0.01 -n 5000000 -b -d $dpu_num"
 
-#program1="python3 run*.py -i ${data}/ERR240727-l100-e1-5MPairs -l 100 -e 0.01 -n 5000000 -b -t $tasklets_num -d $dpu_num"
-#program2="python3 run*.py -i ${data}/SRR826460-l150-e1-5MPairs -l 150 -e 0.01 -n 5000000 -b -d $dpu_num"
-#program3="python3 run*.py -i ${data}/SRR826471-l250-e1-5MPairs -l 250 -e 0.01 -n 5000000 -b -d $dpu_num"
-#program4="python3 run*.py -i ${data}/synthetic-l500-e1-5MPairs -l 500 -e 0.01 -n 5000000 -b -d $dpu_num"
-#program5="python3 run*.py -i ${data}/synthetic-l1000-e1-5MPairs -l 1000 -e 0.01 -n 5000000 -b -d $dpu_num"
-
-
-#$program1
+$program1
 #$program2
 #$program3
 #$program4
 #$program5
-
 
 #start=`date +%s.%N`
 #$program
@@ -84,7 +76,6 @@ $program4
 
 #compile1="make NR_TASKLETS=18 NR_DPUS=DPU_ALLOCATE_ALL FLAGS=\"-DMAX_SCORE=5 -DREAD_SIZE=112 -DBACKTRACE -DWRAM_SEGMENT=2432\""
 #see here: /sys/devices/power/events
-
 
 rm dpu-out
 rm out
