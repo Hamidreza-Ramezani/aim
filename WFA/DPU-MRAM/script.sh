@@ -62,12 +62,14 @@ program2="python3 run*.py -i ${data}/SRR826460-l150-e1-5MPairs -l 150 -e 0.01 -n
 program3="python3 run*.py -i ${data}/SRR826471-l250-e1-5MPairs -l 250 -e 0.01 -n 5000000 -b -d $dpu_num"
 program4="python3 run*.py -i ${data}/synthetic-l500-e1-5MPairs -l 500 -e 0.01 -n 5000000 -b -d $dpu_num"
 program5="python3 run*.py -i ${data}/synthetic-l1000-e1-5MPairs -l 1000 -e 0.01 -n 5000000 -b -d $dpu_num"
+#program6="python3 run*.py -i ${data}/ERR240727-l80-e1-5MPairs -l 80 -e 0.01 -n 5000000 -b -t 19 -d $dpu_num"
 
 $program1
 #$program2
 #$program3
 #$program4
 #$program5
+#$program6
 
 #start=`date +%s.%N`
 #$program
@@ -80,6 +82,14 @@ $program1
 rm dpu-out
 rm out
 rm performance.log
+
+
+
+#for dpu_num in $(seq 1 128 1); do
+#for dpu_num in {1..128}; do
+#    program1="python3 run*.py -i ${data}/ERR240727-l100-e1-5MPairs -l 100 -e 0.01 -n 5000000 -b -t $tasklets_num -d $dpu_num"
+#    eval $program1
+#done
 
 
 

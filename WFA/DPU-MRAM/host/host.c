@@ -197,7 +197,6 @@ int main(int argc, char *argv[])
     float initTime = 0.0f;
     initTime += getElapsedTime(timer);
     printf("DPU initialization: %f ms\n", initTime * 1e3);
-
     printf("Allocated %d DPU(s)\n", nr_of_dpus);
 
     uint32_t nb_reads_per_dpu = ROUND_UP_MULTIPLE_8(((total_nb_reads) / nr_of_dpus));
@@ -225,7 +224,7 @@ int main(int argc, char *argv[])
     startTimer(&timer);
     uint32_t each_dpu;
     uint32_t dpuParams_m = 0;
-    for (int i=0; i<20; i++) {
+    //for (int i=0; i<20; i++) {
     DPU_FOREACH(dpu_set, dpu, each_dpu)
     {
         // Allocate needed MRAM memory to store Read Pairs Requests and Results
@@ -280,23 +279,23 @@ int main(int argc, char *argv[])
         DPU_ASSERT(dpu_prepare_xfer(dpu, (uint8_t *)dpu_texts[each_dpu]));
     }
     DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, dpuParams[0].dpuTexts_m, nb_reads_per_dpu * (READ_SIZE), DPU_XFER_DEFAULT));
-    }
+    //} //for loop
     stopTimer(&timer);
 
-    fp = popen("ipmitool -b 06 -t 0x2c nm statistics power domain platform && ipmitool -b 06 -t 0x2c nm statistics power domain memory && ipmitool -b 06 -t 0x2c nm statistics power domain cpu", "r");
-    if (fp == NULL) {
-        perror("popen");
-        return 1;
-    }
+    //fp = popen("ipmitool -b 06 -t 0x2c nm statistics power domain platform && ipmitool -b 06 -t 0x2c nm statistics power domain memory && ipmitool -b 06 -t 0x2c nm statistics power domain cpu", "r");
+    //if (fp == NULL) {
+    //    perror("popen");
+    //    return 1;
+    //}
 
-    while (fgets(output, sizeof(output), fp) != NULL) {
-        printf("%s", output);
-    }
+    //while (fgets(output, sizeof(output), fp) != NULL) {
+    //    printf("%s", output);
+    //}
 
-    if (pclose(fp) == -1) {
-        perror("pclose");
-        return 1;
-    }
+    //if (pclose(fp) == -1) {
+    //    perror("pclose");
+    //    return 1;
+    //}
 
     loadTime += getElapsedTime(timer);
     printf("CPU-DPU: %f ms\n", loadTime * 1e3);
@@ -317,11 +316,11 @@ int main(int argc, char *argv[])
 #endif
 
 
-    DPU_ASSERT(dpu_launch(dpu_set, DPU_SYNCHRONOUS));
-    //for (int i = 0; i < 1; i++)
-    //{
-    //    DPU_ASSERT(dpu_launch(dpu_set, DPU_SYNCHRONOUS));
-    //}
+    //DPU_ASSERT(dpu_launch(dpu_set, DPU_SYNCHRONOUS));
+    for (int i = 0; i < 100; i++)
+    {
+        DPU_ASSERT(dpu_launch(dpu_set, DPU_SYNCHRONOUS));
+    }
 
 
 
@@ -332,20 +331,20 @@ int main(int argc, char *argv[])
     PRINT_INFO(p.verbosity >= 1, "    DPU Energy: %f J", energy);
 #endif
     stopTimer(&timer);
-    //fp = popen("ipmitool -b 06 -t 0x2c nm statistics power domain platform && ipmitool -b 06 -t 0x2c nm statistics power domain memory && ipmitool -b 06 -t 0x2c nm statistics power domain cpu", "r");
-    //if (fp == NULL) {
-    //    perror("popen");
-    //    return 1;
-    //}
+    fp = popen("ipmitool -b 06 -t 0x2c nm statistics power domain platform", "r");
+    if (fp == NULL) {
+        perror("popen");
+        return 1;
+    }
 
-    //while (fgets(output, sizeof(output), fp) != NULL) {
-    //    printf("%s", output);
-    //}
+    while (fgets(output, sizeof(output), fp) != NULL) {
+        printf("%s", output);
+    }
 
-    //if (pclose(fp) == -1) {
-    //    perror("pclose");
-    //    return 1;
-    //}
+    if (pclose(fp) == -1) {
+        perror("pclose");
+        return 1;
+    }
 
     dpuTime += getElapsedTime(timer);
     printf("DPU Kernel: %f ms\n", dpuTime * 1e3);
@@ -382,20 +381,20 @@ int main(int argc, char *argv[])
     }
     stopTimer(&timer);
 
-    fp = popen("ipmitool -b 06 -t 0x2c nm statistics power domain platform && ipmitool -b 06 -t 0x2c nm statistics power domain memory && ipmitool -b 06 -t 0x2c nm statistics power domain cpu", "r");
-    if (fp == NULL) {
-        perror("popen");
-        return 1;
-    }
+    //fp = popen("ipmitool -b 06 -t 0x2c nm statistics power domain platform && ipmitool -b 06 -t 0x2c nm statistics power domain memory && ipmitool -b 06 -t 0x2c nm statistics power domain cpu", "r");
+    //if (fp == NULL) {
+    //    perror("popen");
+    //    return 1;
+    //}
 
-    while (fgets(output, sizeof(output), fp) != NULL) {
-        printf("%s", output);
-    }
+    //while (fgets(output, sizeof(output), fp) != NULL) {
+    //    printf("%s", output);
+    //}
 
-    if (pclose(fp) == -1) {
-        perror("pclose");
-        return 1;
-    }
+    //if (pclose(fp) == -1) {
+    //    perror("pclose");
+    //    return 1;
+    //}
 
     retrieveTime += getElapsedTime(timer);
     printf("DPU-CPU: %f ms\n", retrieveTime * 1e3);
