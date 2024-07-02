@@ -1,10 +1,10 @@
 root_dir=/home/hamidkeb/aim
 algorithm=WFA
-version=DPU-MRAM
+version=DPU-WRAM
 dir="${root_dir}/${algorithm}/${version}"
 output_dir="${dir}/output"
 performance_log="${dir}/performance.log"
-data="/data/hamid"
+data="/data/hamid/dataset"
 
 #dpu_num=(1 2 4 8 16 32 64)
 #tasklets_num=(1 4 8 16 19)
@@ -57,39 +57,31 @@ program5="./build/host ${data}/synthetic-l1000-e1-5MPairs ./out 5000000"
 #eval $compile5
 #$program5
 
-program1="python3 run*.py -i ${data}/ERR240727-l100-e1-5MPairs -l 100 -e 0.01 -n 5000000 -b -t 18 -d $dpu_num"
+program1="python3 run*.py -i ${data}/ERR240727-l100-e1-5MPairs -l 100 -e 0.01 -n 5000000 -b -t $tasklets_num -d $dpu_num"
 program2="python3 run*.py -i ${data}/SRR826460-l150-e1-5MPairs -l 150 -e 0.01 -n 5000000 -b -d $dpu_num"
 program3="python3 run*.py -i ${data}/SRR826471-l250-e1-5MPairs -l 250 -e 0.01 -n 5000000 -b -d $dpu_num"
 program4="python3 run*.py -i ${data}/synthetic-l500-e1-5MPairs -l 500 -e 0.01 -n 5000000 -b -d $dpu_num"
-program5="python3 run*.py -i ${data}/synthetic-l1000-e1-5MPairs -l 1000 -e 0.01 -n 5000000 -b  -d $dpu_num"
+program5="python3 run*.py -i ${data}/synthetic-l1000-e5-5MPairs -l 1000 -e 0.05 -n 5000000 -b -d $dpu_num"
 program6="python3 run*.py -i ${data}/synthetic-l5000-e1-1MPairs -l 5000 -e 0.01 -n 500000 -b -d $dpu_num -r"
-program7="python3 run*.py -i ${data}/synthetic-l10000-e1-1MPairs -l 10000 -e 0.01 -n 500000 -b -d $dpu_num -r"
+program7="python3 run*.py -i ${data}/synthetic-l10000-e5-1MPairs -l 10000 -e 0.05 -n 500000 -d $dpu_num -r"
 
-program8="python3 run*.py -i ${data_small}/synthetic-l2000-e1-100KPairs -l 2000 -e 0.01 -n 100000 -b -d $dpu_num"
-program9="python3 run*.py -i ${data_small}/synthetic-l2500-e1-100KPairs -l 2500 -e 0.01 -n 100000 -b -d $dpu_num"
-program10="python3 run*.py -i ${data_small}/synthetic-l3000-e1-100KPairs -l 3000 -e 0.01 -n 100000 -b -d $dpu_num"
-program11="python3 run*.py -i ${data_small}/synthetic-l5000-e1-10KPairs -l 5000 -e 0.01 -n 10000 -b -d $dpu_num"
-
-
-program26="python3 run*.py -i ${data}/synthetic-l5000-e1-1MPairs -l 5000 -e 0.01 -n 500000 -b -d $dpu_num"
-program27="python3 run*.py -i ${data}/synthetic-l10000-e1-1MPairs -l 10000 -e 0.01 -n 500000 -b -d $dpu_num"
-
-$program1
+#$program1
 #$program2
 #$program3
 #$program4
-#$program5
+$program5
 #$program6
 #$program7
 
-#$program26
-#$program27
-
+#start=`date +%s.%N`
+#$program
+#end=`date +%s.%N`
+#echo "$end - $start" | bc -l 
 
 #compile1="make NR_TASKLETS=18 NR_DPUS=DPU_ALLOCATE_ALL FLAGS=\"-DMAX_SCORE=5 -DREAD_SIZE=112 -DBACKTRACE -DWRAM_SEGMENT=2432\""
 #see here: /sys/devices/power/events
 
-#rm dpu-out
+rm dpu-out
 rm out
 rm performance.log
 

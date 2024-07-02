@@ -78,7 +78,7 @@ void swg_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mr
 
     while (h > 0 && v > 0)
     {
-        // Load needed cells from MAM
+        // Load needed cells from MRAM
         mram_read((__mram_ptr void const *)(matrix_offset + (num_cols * h + v) * sizeof(dp_cell_t)), cell_cache, ROUND_UP_MULTIPLE_8(sizeof(dp_cell_t)));
         mram_read((__mram_ptr void const *)(matrix_offset + (num_cols * h + v - 1) * sizeof(dp_cell_t)), upper_cell_cache, ROUND_UP_MULTIPLE_8(sizeof(dp_cell_t)));
         mram_read((__mram_ptr void const *)(matrix_offset + (num_cols * (h - 1) + v - 1) * sizeof(dp_cell_t)), diag_cell_cache, ROUND_UP_MULTIPLE_8(sizeof(dp_cell_t)));

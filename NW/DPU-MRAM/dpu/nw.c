@@ -161,7 +161,7 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
     int cell_offset = (matrix_offset) & (-8);
     int cell_index = ((matrix_offset)-cell_offset);
 
-    mram_read((__mram_ptr void const *)(matrix_offset), cell_cache, CACHE_SIZE);
+    //mram_read((__mram_ptr void const *)(matrix_offset), cell_cache, CACHE_SIZE);
     cell_type_t cell = 0;
     cell_cache[cell_index] = cell;
     mram_write(cell_cache,((__mram_ptr void *)(matrix_offset)), CACHE_SIZE);
@@ -214,7 +214,7 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
             mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
             mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE);
             mram_read((__mram_ptr void const *)(matrix_offset + left_cell_offset*sizeof(cell_type_t)), left_cell_cache, CACHE_SIZE);
-            mram_read((__mram_ptr const void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
+            //mram_read((__mram_ptr const void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
             // Del
             cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
             // Ins
@@ -243,7 +243,7 @@ int main()
     uint32_t tasklet_id = me();   //index of this tasklet
 
     // Load parameters
-    uint32_t params_m = (uint32_t)dpu_mram_heap_pointer;  //https://sdk.upmem.com/2021.4.0/031_DPURuntimeService_Memory.html#dpu-mram-heap-pointer-explanation-label
+    uint32_t params_m = (uint32_t)DPU_MRAM_HEAP_POINTER;  //https://sdk.upmem.com/2021.4.0/031_DPURuntimeService_Memory.html#dpu-mram-heap-pointer-explanation-label
     DPUParams params_w;
     mram_read((__mram_ptr void const *)params_m, &params_w, ROUND_UP_MULTIPLE_8(sizeof(DPUParams)));
     uint32_t nb_reads_per_dpu = params_w.dpuNumReads;

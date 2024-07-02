@@ -17,3 +17,9 @@ Datasets/ERR240727-l100-e1-500KPairs
 Datasets/ERR240727-l100-e1-50KPairs
 Datasets/sample-l100-e1-50
 Datasets/sample-l100-e1-50K
+
+
+
+*experiment*
+SWG/DPU-MRAM/difference
+WFA/DPU-MRAM/upmem-database

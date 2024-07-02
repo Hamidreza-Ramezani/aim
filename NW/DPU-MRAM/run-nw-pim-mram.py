@@ -77,7 +77,7 @@ for NR_TASKLETS in range(1, 21):
 
 # MRAM used memory upper limit
 memory_upper_limit_mram = (number_reads/args["nr_of_dpus"])*2*read_length + (
-    number_reads/args["nr_of_dpus"])*76 + read_length*read_length*NR_TASKLETS*8
+    number_reads/args["nr_of_dpus"])*76 + read_length*read_length*NR_TASKLETS*2
 
 if args["backtrace"]:
     memory_upper_limit_mram = memory_upper_limit_mram + \
@@ -85,9 +85,9 @@ if args["backtrace"]:
 
 # Check if it exceeds the MRAM capacity
 if memory_upper_limit_mram >= 64000000:
-    for NR_TASKLETS in range(1, NR_TASKLETS):
+    for NR_TASKLETS in range(1, NR_TASKLETS+1):
         memory_upper_limit_mram = (number_reads/args["nr_of_dpus"])*2*read_length + (
-            number_reads/args["nr_of_dpus"])*76 + read_length*read_length*NR_TASKLETS*8
+            number_reads/args["nr_of_dpus"])*76 + read_length*read_length*NR_TASKLETS*2
 
         if args["backtrace"]:
             memory_upper_limit_mram = memory_upper_limit_mram + \
@@ -98,7 +98,7 @@ if memory_upper_limit_mram >= 64000000:
             break
 
 if NR_TASKLETS == 0:
-    if memory_upper_limit >= (62000 - 1024) or memory_upper_limit_mram >= 64000000:
+    if memory_upper_limit >= (62000 - 1024):
         print("Data doesn't fit in the WRAM")
         exit(-1)
     if memory_upper_limit_mram >= 64000000:
