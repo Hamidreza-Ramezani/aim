@@ -171,12 +171,42 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
         // Init first column
         // Cell base address in the MRAM must be aligned to 8
         int cell_offset = (v) & (-4);
-        int cell_index = v & 3;
         mram_read((__mram_ptr void const *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
+        int cell_index = v & 3;
         cell = cell + GAP_D;
         cell_cache[cell_index] = cell;
         mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
     }
+
+    //cell_offset = 0;
+    //mram_read((__mram_ptr void const *)(matrix_offset + cell_offset * sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
+    //
+    //for (v = 1; v <= 3; ++v)
+    //{
+    //    int cell_index = v & 3;
+    //    cell = cell + GAP_D;
+    //    cell_cache[cell_index] = cell;
+    //}
+    //
+    //mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset * sizeof(cell_type_t)), CACHE_SIZE);
+
+    //// Remaining iterations with a stride of 4
+    //for (v = 4; v <= pattern_length; v += 4)
+    //{
+    //    cell_offset = v & (-4);
+    //    mram_read((__mram_ptr void const *)(matrix_offset + cell_offset * sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
+    //
+    //    for (int i = 0; i < 4 && (v + i) <= pattern_length; ++i)
+    //    {
+    //        int cell_index = (v + i) & 3;
+    //        cell = cell + GAP_D;
+    //        cell_cache[cell_index] = cell;
+    //    }
+
+    //    mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset * sizeof(cell_type_t)), CACHE_SIZE);
+    //}
+
+
 
     cell = 0;
     for (h = 1; h <= text_length; ++h)
@@ -214,7 +244,7 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
             mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
             mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE);
             mram_read((__mram_ptr void const *)(matrix_offset + left_cell_offset*sizeof(cell_type_t)), left_cell_cache, CACHE_SIZE);
-            //mram_read((__mram_ptr const void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
+
             // Del
             cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
             // Ins
