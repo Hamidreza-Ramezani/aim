@@ -84,17 +84,19 @@ SOFTWARE. */
 #define READ_SIZE 1120
 #endif
 
-#define NW_W16
+typedef int64_t cell_type_t;
 
-#ifdef NW_W8
-typedef int8_t cell_type_t;
-#else
-#ifdef NW_W16
-typedef int16_t cell_type_t;
-#else
-typedef int cell_type_t;
-#endif
-#endif
+//#define NW_W16
+
+//#ifdef NW_W8
+//typedef int8_t cell_type_t;
+//#else
+//#ifdef NW_W16
+//typedef int16_t cell_type_t;
+//#else
+//typedef int cell_type_t;
+//#endif
+//#endif
 
 #define MIN(a, b) (((a) <= (b)) ? (a) : (b))
 #define MAX(a, b) (((a) >= (b)) ? (a) : (b))

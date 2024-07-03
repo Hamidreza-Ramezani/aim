@@ -70,12 +70,12 @@ program11="python3 run*.py -i ${data_small}/synthetic-l5000-e1-10KPairs -l 5000 
 
 #rm -rf build/
 #$program1
-rm -rf build/
-$program2
+#rm -rf build/
+#$program2
 #rm -rf build/
 #$program3
 #rm -rf build/
-##$program4
+#$program4
 #rm -rf build/
 #$program5
 #rm -rf build/
