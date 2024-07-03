@@ -106,67 +106,34 @@ void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mra
         int upper_cell_offset = (num_cols * h + v - 1) & (-4);
         int upper_cell_index = (num_cols * h + v - 1) & 3;
 
-        //int left_cell_offset = ((num_cols * (h - 1) + v)) & (-4);
-        //int left_cell_index = (num_cols * (h - 1) + v) & 3;
+        int left_cell_offset = ((num_cols * (h - 1) + v)) & (-4);
+        int left_cell_index = (num_cols * (h - 1) + v) & 3;
 
         int diag_cell_offset = ((num_cols * (h - 1) + v - 1)) & (-4);
         int diag_cell_index = (num_cols * (h - 1) + v - 1) & 3;
 
-        //mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
+        mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
         mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE);
-        //mram_read((__mram_ptr void const *)(matrix_offset + left_cell_offset*sizeof(cell_type_t)), left_cell_cache, CACHE_SIZE);
         mram_read((__mram_ptr const void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
+        mram_read((__mram_ptr const void *)(matrix_offset + left_cell_offset*sizeof(cell_type_t)), left_cell_cache, CACHE_SIZE);
 
-        //if (cell_cache[cell_index] == upper_cell_cache[upper_cell_index] + GAP_D)
-        //{
-        //    operations[op_sentinel--] = 'D';
-        //    --v;
-        //}
-        //else if (cell_cache[cell_index] == left_cell_cache[left_cell_index] + GAP_I)
-        //{
-        //    operations[op_sentinel--] = 'I';
-        //    --h;
-        //}
-        //else
-        //{
-        //    operations[op_sentinel--] =
-        //        (cell_cache[cell_index] == diag_cell_cache[diag_cell_index] + MISMATCH) ? 'X' : 'M';
-        //    --h;
-        //    --v;
-        //}
-        if (cell_cache[cell_index] == diag_cell_cache[diag_cell_index])
+        if (cell_cache[cell_index] == upper_cell_cache[upper_cell_index] + GAP_D)
         {
-            operations[op_sentinel--] = 'M';
-            --h;
+            operations[op_sentinel--] = 'D';
             --v;
         }
-        else if (cell_cache[cell_index] == diag_cell_cache[diag_cell_index] + MISMATCH)
+        else if (cell_cache[cell_index] == left_cell_cache[left_cell_index] + GAP_I)
         {
-            operations[op_sentinel--] = 'X';
+            operations[op_sentinel--] = 'I';
             --h;
-            --v;
         }
         else
         {
-           mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
-           if (cell_cache[cell_index] == upper_cell_cache[upper_cell_index] + GAP_D)
-           {
-               operations[op_sentinel--] = 'D';
-               --v;
-           }
-           else
-           {
-               operations[op_sentinel--] = 'I';
-               --h;
-           }
+            operations[op_sentinel--] =
+                (cell_cache[cell_index] == diag_cell_cache[diag_cell_index] + MISMATCH) ? 'X' : 'M';
+            --h;
+            --v;
         }
-        //else
-        //{
-        //    operations[op_sentinel--] =
-        //        (cell_cache[cell_index] == diag_cell_cache[diag_cell_index] + MISMATCH) ? 'X' : 'M';
-        //    --h;
-        //    --v;
-        //}
     }
     while (h > 0)
     {
