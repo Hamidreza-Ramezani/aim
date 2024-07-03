@@ -88,7 +88,7 @@ void edit_cigar_allocate(
     edit_cigar->score = INT32_MIN;
 }
 
-void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mram_t *dpu_alloc_mram,int tasklet_id, cell_type_t *cell_cache, cell_type_t *upper_cell_cache, cell_type_t *diag_cell_cache, cell_type_t *left_cell_cache)
+void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mram_t *dpu_alloc_mram,int tasklet_id, cell_type_t *cell_cache, cell_type_t *upper_cell_cache, cell_type_t *diag_cell_cache)
 {
     uint32_t matrix_offset = (uint32_t)DPU_MRAM_HEAP_POINTER + dpu_alloc_mram->CUR_PTR_MRAM;
     char *const operations = cigar->operations;
@@ -181,7 +181,7 @@ void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mra
     cigar->begin_offset = op_sentinel + 1;
 }
 
-void nw_compute(char *pattern, char *text, int pattern_length, int text_length, edit_cigar_t *cigar,dpu_alloc_mram_t *dpu_alloc_mram, uint32_t tasklet_id, cell_type_t *cell_cache, cell_type_t *upper_cell_cache, cell_type_t *diag_cell_cache, cell_type_t *left_cell_cache)
+void nw_compute(char *pattern, char *text, int pattern_length, int text_length, edit_cigar_t *cigar,dpu_alloc_mram_t *dpu_alloc_mram, uint32_t tasklet_id, cell_type_t *cell_cache, cell_type_t *upper_cell_cache, cell_type_t *diag_cell_cache)
 {
     int h, v;
     int num_rows = pattern_length + 1;
@@ -314,8 +314,9 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
             if (diag_cell_offset == left_cell_offset) {
                mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
                mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE);
+               //left_cell_cache = diag_cell_cache;
                cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
-               cell_type_t ins = (cell_type_t)diag_cell_cache[diag_cell_index+1] + GAP_I;
+               cell_type_t ins = (cell_type_t)diag_cell_cache[left_cell_index] + GAP_I;
                cell_type_t m_match = (cell_type_t)diag_cell_cache[diag_cell_index] + ((pattern[v - 1] == text[h - 1]) ? 0 : MISMATCH);
                score = (cell_type_t)MIN(m_match, MIN(ins, del));
                cell_cache[cell_index] = score;
@@ -323,27 +324,27 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
                continue;
             }
 
-            mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
-            mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE);
-            mram_read((__mram_ptr void const *)(matrix_offset + left_cell_offset*sizeof(cell_type_t)), left_cell_cache, CACHE_SIZE);
-
             //mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
-            //mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE*2);
+            //mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE);
+            //mram_read((__mram_ptr void const *)(matrix_offset + left_cell_offset*sizeof(cell_type_t)), left_cell_cache, CACHE_SIZE);
 
-            // Del
-            cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
-            // Ins
-            cell_type_t ins = (cell_type_t)left_cell_cache[left_cell_index] + GAP_I;
-            // Match
-            cell_type_t m_match = (cell_type_t)diag_cell_cache[diag_cell_index] + ((pattern[v - 1] == text[h - 1]) ? 0 : MISMATCH);
-
+            mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
+            mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE*2);
 
             //// Del
             //cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
             //// Ins
-            //cell_type_t ins = (cell_type_t)diag_cell_cache[diag_cell_index+1] + GAP_I;
+            //cell_type_t ins = (cell_type_t)left_cell_cache[left_cell_index] + GAP_I;
             //// Match
             //cell_type_t m_match = (cell_type_t)diag_cell_cache[diag_cell_index] + ((pattern[v - 1] == text[h - 1]) ? 0 : MISMATCH);
+
+            left_cell_index = diag_cell_index + 1;
+            // Del
+            cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
+            // Ins
+            cell_type_t ins = (cell_type_t)diag_cell_cache[left_cell_index] + GAP_I;
+            // Match
+            cell_type_t m_match = (cell_type_t)diag_cell_cache[diag_cell_index] + ((pattern[v - 1] == text[h - 1]) ? 0 : MISMATCH);
 
 
             score = (cell_type_t)MIN(m_match, MIN(ins, del));
@@ -359,7 +360,7 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
     cigar->score = score;
 #ifdef BACKTRACE
     // Compute traceback
-    nw_traceback(num_cols, num_rows, cigar, dpu_alloc_mram, tasklet_id, cell_cache, upper_cell_cache, diag_cell_cache, left_cell_cache);
+    nw_traceback(num_cols, num_rows, cigar, dpu_alloc_mram, tasklet_id, cell_cache, upper_cell_cache, diag_cell_cache);
 #endif
 }
 
@@ -405,9 +406,9 @@ int main()
 
     // Only 4 cell caches are needed in the WRAM
     cell_type_t *cell_cache = (cell_type_t *)mem_alloc(CACHE_SIZE);
-    cell_type_t *diag_cell_cache = (cell_type_t *)mem_alloc(CACHE_SIZE);
+    cell_type_t *diag_cell_cache = (cell_type_t *)mem_alloc(CACHE_SIZE*2);
     cell_type_t *upper_cell_cache = (cell_type_t *)mem_alloc(CACHE_SIZE);
-    cell_type_t *left_cell_cache = (cell_type_t *)mem_alloc(CACHE_SIZE);
+    //cell_type_t *left_cell_cache = (cell_type_t *)mem_alloc(CACHE_SIZE);
 
 #ifdef BACKTRACE
     cigar->operations = (char *)mem_alloc(2 * READ_SIZE);
@@ -462,7 +463,7 @@ int main()
             }
             edit_cigar_allocate(cigar, request_w->pattern_len, request_w->text_len);
 
-            nw_compute(pattern, text, request_w->pattern_len, request_w->text_len, cigar, &dpu_alloc_mram, tasklet_id, cell_cache, upper_cell_cache, diag_cell_cache, left_cell_cache);
+            nw_compute(pattern, text, request_w->pattern_len, request_w->text_len, cigar, &dpu_alloc_mram, tasklet_id, cell_cache, upper_cell_cache, diag_cell_cache);
 
             result_w->idx = request_w->idx;
 #ifdef BACKTRACE

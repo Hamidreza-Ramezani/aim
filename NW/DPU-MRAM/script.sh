@@ -59,7 +59,7 @@ program1="python3 run*.py -i ${data}/ERR240727-l100-e1-5MPairs -l 100 -e 0.01 -n
 program2="python3 run*.py -i ${data}/SRR826460-l150-e1-5MPairs -l 150 -e 0.01 -n 5000000 -b -d $dpu_num"
 program3="python3 run*.py -i ${data}/SRR826471-l250-e1-5MPairs -l 250 -e 0.01 -n 5000000 -b -d $dpu_num"
 program4="python3 run*.py -i ${data}/synthetic-l500-e1-5MPairs -l 500 -e 0.01 -n 5000000 -b -d $dpu_num"
-program5="python3 run*.py -i ${data}/synthetic-l1000-e1-1MPairs -l 1000 -e 0.01 -n 1000000 -b -d $dpu_num"
+program5="python3 run*.py -i ${data}/synthetic-l1000-e1-5MPairs -l 1000 -e 0.01 -n 5000000 -b -d $dpu_num"
 
 program8="python3 run*.py -i ${data_small}/synthetic-l2000-e1-100KPairs -l 2000 -e 0.01 -n 100000 -b -d $dpu_num"
 program9="python3 run*.py -i ${data_small}/synthetic-l2500-e1-100KPairs -l 2500 -e 0.01 -n 100000 -b -d $dpu_num"
@@ -68,8 +68,8 @@ program11="python3 run*.py -i ${data_small}/synthetic-l5000-e1-10KPairs -l 5000 
 
 
 
-rm -rf build/
-$program1
+#rm -rf build/
+#$program1
 #rm -rf build/
 #$program2
 #rm -rf build/
