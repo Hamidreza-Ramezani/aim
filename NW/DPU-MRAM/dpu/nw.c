@@ -106,34 +106,67 @@ void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mra
         int upper_cell_offset = (num_cols * h + v - 1) & (-4);
         int upper_cell_index = (num_cols * h + v - 1) & 3;
 
-        int left_cell_offset = ((num_cols * (h - 1) + v)) & (-4);
-        int left_cell_index = (num_cols * (h - 1) + v) & 3;
+        //int left_cell_offset = ((num_cols * (h - 1) + v)) & (-4);
+        //int left_cell_index = (num_cols * (h - 1) + v) & 3;
 
         int diag_cell_offset = ((num_cols * (h - 1) + v - 1)) & (-4);
         int diag_cell_index = (num_cols * (h - 1) + v - 1) & 3;
 
-        mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
+        //mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
         mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE);
-        mram_read((__mram_ptr void const *)(matrix_offset + left_cell_offset*sizeof(cell_type_t)), left_cell_cache, CACHE_SIZE);
+        //mram_read((__mram_ptr void const *)(matrix_offset + left_cell_offset*sizeof(cell_type_t)), left_cell_cache, CACHE_SIZE);
         mram_read((__mram_ptr const void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
 
-        if (cell_cache[cell_index] == upper_cell_cache[upper_cell_index] + GAP_D)
+        //if (cell_cache[cell_index] == upper_cell_cache[upper_cell_index] + GAP_D)
+        //{
+        //    operations[op_sentinel--] = 'D';
+        //    --v;
+        //}
+        //else if (cell_cache[cell_index] == left_cell_cache[left_cell_index] + GAP_I)
+        //{
+        //    operations[op_sentinel--] = 'I';
+        //    --h;
+        //}
+        //else
+        //{
+        //    operations[op_sentinel--] =
+        //        (cell_cache[cell_index] == diag_cell_cache[diag_cell_index] + MISMATCH) ? 'X' : 'M';
+        //    --h;
+        //    --v;
+        //}
+        if (cell_cache[cell_index] == diag_cell_cache[diag_cell_index])
         {
-            operations[op_sentinel--] = 'D';
+            operations[op_sentinel--] = 'M';
+            --h;
             --v;
         }
-        else if (cell_cache[cell_index] == left_cell_cache[left_cell_index] + GAP_I)
+        else if (cell_cache[cell_index] == diag_cell_cache[diag_cell_index] + MISMATCH)
         {
-            operations[op_sentinel--] = 'I';
+            operations[op_sentinel--] = 'X';
             --h;
+            --v;
         }
         else
         {
-            operations[op_sentinel--] =
-                (cell_cache[cell_index] == diag_cell_cache[diag_cell_index] + MISMATCH) ? 'X' : 'M';
-            --h;
-            --v;
+           mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
+           if (cell_cache[cell_index] == upper_cell_cache[upper_cell_index] + GAP_D)
+           {
+               operations[op_sentinel--] = 'D';
+               --v;
+           }
+           else
+           {
+               operations[op_sentinel--] = 'I';
+               --h;
+           }
         }
+        //else
+        //{
+        //    operations[op_sentinel--] =
+        //        (cell_cache[cell_index] == diag_cell_cache[diag_cell_index] + MISMATCH) ? 'X' : 'M';
+        //    --h;
+        //    --v;
+        //}
     }
     while (h > 0)
     {
@@ -166,45 +199,45 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
     cell_cache[cell_index] = cell;
     mram_write(cell_cache,((__mram_ptr void *)(matrix_offset)), CACHE_SIZE);
 
-    for (v = 1; v <= pattern_length; ++v)
-    {
-        // Init first column
-        // Cell base address in the MRAM must be aligned to 8
-        int cell_offset = (v) & (-4);
-        mram_read((__mram_ptr void const *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
-        int cell_index = v & 3;
-        cell = cell + GAP_D;
-        cell_cache[cell_index] = cell;
-        mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
-    }
-
-    //cell_offset = 0;
-    //mram_read((__mram_ptr void const *)(matrix_offset + cell_offset * sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
-    //
-    //for (v = 1; v <= 3; ++v)
+    //for (v = 1; v <= pattern_length; ++v)
     //{
+    //    // Init first column
+    //    // Cell base address in the MRAM must be aligned to 8
+    //    int cell_offset = (v) & (-4);
+    //    mram_read((__mram_ptr void const *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
     //    int cell_index = v & 3;
     //    cell = cell + GAP_D;
     //    cell_cache[cell_index] = cell;
+    //    mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
     //}
-    //
-    //mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset * sizeof(cell_type_t)), CACHE_SIZE);
 
-    //// Remaining iterations with a stride of 4
-    //for (v = 4; v <= pattern_length; v += 4)
-    //{
-    //    cell_offset = v & (-4);
-    //    mram_read((__mram_ptr void const *)(matrix_offset + cell_offset * sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
-    //
-    //    for (int i = 0; i < 4 && (v + i) <= pattern_length; ++i)
-    //    {
-    //        int cell_index = (v + i) & 3;
-    //        cell = cell + GAP_D;
-    //        cell_cache[cell_index] = cell;
-    //    }
+    cell_offset = 0;
+    mram_read((__mram_ptr void const *)(matrix_offset + cell_offset * sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
+    
+    for (v = 1; v <= 3; ++v)
+    {
+        int cell_index = v & 3;
+        cell = cell + GAP_D;
+        cell_cache[cell_index] = cell;
+    }
+    
+    mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset * sizeof(cell_type_t)), CACHE_SIZE);
 
-    //    mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset * sizeof(cell_type_t)), CACHE_SIZE);
-    //}
+    // Remaining iterations with a stride of 4
+    for (v = 4; v <= pattern_length; v += 4)
+    {
+        cell_offset = v & (-4);
+        mram_read((__mram_ptr void const *)(matrix_offset + cell_offset * sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
+    
+        for (int i = 0; i < 4 && (v + i) <= pattern_length; ++i)
+        {
+            int cell_index = (v + i) & 3;
+            cell = cell + GAP_D;
+            cell_cache[cell_index] = cell;
+        }
+
+        mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset * sizeof(cell_type_t)), CACHE_SIZE);
+    }
 
 
 
@@ -222,7 +255,44 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
         mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
     }
 
-    // Compute DP
+    //// Compute DP
+    //int score = 0;
+    //for (h = 1; h <= text_length; ++h)
+    //{
+    //    for (v = 1; v <= pattern_length; ++v)
+    //    {
+    //        // Cell base address in the MRAM must be aligned to 8
+    //        int cell_offset = (num_cols * h + v) & (-4);
+    //        int cell_index = (num_cols * h + v) & 3;
+
+    //        int upper_cell_offset = (num_cols * h + v - 1) & (-4);
+    //        int upper_cell_index = (num_cols * h + v - 1) & 3;
+
+    //        int left_cell_offset = ((num_cols * (h - 1) + v)) & (-4);
+    //        int left_cell_index = (num_cols * (h - 1) + v) & 3;
+
+    //        int diag_cell_offset = ((num_cols * (h - 1) + v - 1)) & (-4);
+    //        int diag_cell_index = (num_cols * (h - 1) + v - 1) & 3;
+
+    //        mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
+    //        mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE);
+    //        mram_read((__mram_ptr void const *)(matrix_offset + left_cell_offset*sizeof(cell_type_t)), left_cell_cache, CACHE_SIZE);
+
+    //        // Del
+    //        cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
+    //        // Ins
+    //        cell_type_t ins = (cell_type_t)left_cell_cache[left_cell_index] + GAP_I;
+    //        // Match
+    //        cell_type_t m_match = (cell_type_t)diag_cell_cache[diag_cell_index] + ((pattern[v - 1] == text[h - 1]) ? 0 : MISMATCH);
+
+    //        score = (cell_type_t)MIN(m_match, MIN(ins, del));
+
+    //        cell_cache[cell_index] = score;
+
+    //        mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
+    //    }
+    //}
+
     int score = 0;
     for (h = 1; h <= text_length; ++h)
     {
@@ -241,9 +311,24 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
             int diag_cell_offset = ((num_cols * (h - 1) + v - 1)) & (-4);
             int diag_cell_index = (num_cols * (h - 1) + v - 1) & 3;
 
+            if (diag_cell_offset == left_cell_offset) {
+               mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
+               mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE);
+               cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
+               cell_type_t ins = (cell_type_t)diag_cell_cache[diag_cell_index+1] + GAP_I;
+               cell_type_t m_match = (cell_type_t)diag_cell_cache[diag_cell_index] + ((pattern[v - 1] == text[h - 1]) ? 0 : MISMATCH);
+               score = (cell_type_t)MIN(m_match, MIN(ins, del));
+               cell_cache[cell_index] = score;
+               mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
+               continue;
+            }
+
             mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
             mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE);
             mram_read((__mram_ptr void const *)(matrix_offset + left_cell_offset*sizeof(cell_type_t)), left_cell_cache, CACHE_SIZE);
+
+            //mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
+            //mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE*2);
 
             // Del
             cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
@@ -252,6 +337,15 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
             // Match
             cell_type_t m_match = (cell_type_t)diag_cell_cache[diag_cell_index] + ((pattern[v - 1] == text[h - 1]) ? 0 : MISMATCH);
 
+
+            //// Del
+            //cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
+            //// Ins
+            //cell_type_t ins = (cell_type_t)diag_cell_cache[diag_cell_index+1] + GAP_I;
+            //// Match
+            //cell_type_t m_match = (cell_type_t)diag_cell_cache[diag_cell_index] + ((pattern[v - 1] == text[h - 1]) ? 0 : MISMATCH);
+
+
             score = (cell_type_t)MIN(m_match, MIN(ins, del));
 
             cell_cache[cell_index] = score;
@@ -259,6 +353,9 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
             mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
         }
     }
+
+
+
     cigar->score = score;
 #ifdef BACKTRACE
     // Compute traceback
