@@ -81,7 +81,7 @@ for NR_TASKLETS in range(1, 21):
 
 
 if NR_TASKLETS == 0:
-    if memory_upper_limit >= (62000 - 1024) or memory_upper_limit_mram >= 64000000:
+    if memory_upper_limit >= (62000 - 1024):
         print("Data doesn't fit in the WRAM")
         exit(-1)
     if memory_upper_limit_mram >= 64000000:

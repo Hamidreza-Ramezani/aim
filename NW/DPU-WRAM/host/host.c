@@ -297,22 +297,22 @@ int main(int argc, char *argv[])
 #endif
     stopTimer(&timer);
 
-    FILE *fp;
-    char output[1024];
-    fp = popen("ipmitool -b 06 -t 0x2c nm statistics power domain platform && ipmitool -b 06 -t 0x2c nm statistics power domain cpu", "r");
-    if (fp == NULL) {
-        perror("popen");
-        return 1;
-    }
+    //FILE *fp;
+    //char output[1024];
+    //fp = popen("ipmitool -b 06 -t 0x2c nm statistics power domain platform && ipmitool -b 06 -t 0x2c nm statistics power domain cpu", "r");
+    //if (fp == NULL) {
+    //    perror("popen");
+    //    return 1;
+    //}
 
-    while (fgets(output, sizeof(output), fp) != NULL) {
-        printf("%s", output);
-    }
+    //while (fgets(output, sizeof(output), fp) != NULL) {
+    //    printf("%s", output);
+    //}
 
-    if (pclose(fp) == -1) {
-        perror("pclose");
-        return 1;
-    }
+    //if (pclose(fp) == -1) {
+    //    perror("pclose");
+    //    return 1;
+    //}
 
 
     dpuTime += getElapsedTime(timer);
