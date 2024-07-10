@@ -77,7 +77,7 @@ for NR_TASKLETS in range(1, 21):
 
 # MRAM used memory upper limit
 memory_upper_limit_mram = (number_reads/args["nr_of_dpus"])*2*read_length + (
-    number_reads/args["nr_of_dpus"])*76 + read_length*read_length*NR_TASKLETS
+    number_reads/args["nr_of_dpus"])*76 + read_length*read_length*NR_TASKLETS*2
 
 if args["backtrace"]:
     memory_upper_limit_mram = memory_upper_limit_mram + \
@@ -87,7 +87,7 @@ if args["backtrace"]:
 if memory_upper_limit_mram >= 64000000:
     for NR_TASKLETS in range(1, NR_TASKLETS+1):
         memory_upper_limit_mram = (number_reads/args["nr_of_dpus"])*2*read_length + (
-            number_reads/args["nr_of_dpus"])*76 + read_length*read_length*NR_TASKLETS
+            number_reads/args["nr_of_dpus"])*76 + read_length*read_length*NR_TASKLETS*2
 
         if args["backtrace"]:
             memory_upper_limit_mram = memory_upper_limit_mram + \

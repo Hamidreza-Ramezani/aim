@@ -143,4 +143,4 @@ os.system(cmd)
 
 cmd = "./build/host " + args["input"] + " " + \
     args["output"] + " " + str(number_reads)
-os.system(cmd)
+#os.system(cmd)

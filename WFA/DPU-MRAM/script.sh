@@ -62,10 +62,10 @@ program2="python3 run*.py -i ${data}/SRR826460-l150-e1-5MPairs -l 150 -e 0.01 -n
 program3="python3 run*.py -i ${data}/SRR826471-l250-e1-5MPairs -l 250 -e 0.01 -n 5000000 -b -d $dpu_num"
 program4="python3 run*.py -i ${data}/synthetic-l500-e1-5MPairs -l 500 -e 0.01 -n 5000000 -b -d $dpu_num"
 program5="python3 run*.py -i ${data}/synthetic-l1000-e1-5MPairs -l 1000 -e 0.01 -n 5000000 -b  -d $dpu_num"
-program6="python3 run*.py -i ${data}/synthetic-l5000-e1-1MPairs -l 5000 -e 0.01 -n 500000 -b -d $dpu_num -r"
+program6="python3 run*.py -i ${data}/synthetic-l5000-e5-1MPairs -l 5000 -e 0.05 -n 500000 -b -d $dpu_num -r"
 program7="python3 run*.py -i ${data}/synthetic-l10000-e1-1MPairs -l 10000 -e 0.01 -n 500000 -b -d $dpu_num -r"
 
-program8="python3 run*.py -i ${data_small}/synthetic-l2000-e1-100KPairs -l 2000 -e 0.01 -n 100000 -b -d $dpu_num"
+program8="python3 run*.py -i ${data}/synthetic-l2000-e5-1MPairs -l 2500 -e 0.05 -n 1000000 -b -d $dpu_num"
 program9="python3 run*.py -i ${data_small}/synthetic-l2500-e1-100KPairs -l 2500 -e 0.01 -n 100000 -b -d $dpu_num"
 program10="python3 run*.py -i ${data_small}/synthetic-l3000-e1-100KPairs -l 3000 -e 0.01 -n 100000 -b -d $dpu_num"
 program11="python3 run*.py -i ${data_small}/synthetic-l5000-e1-10KPairs -l 5000 -e 0.01 -n 10000 -b -d $dpu_num"
@@ -74,13 +74,14 @@ program11="python3 run*.py -i ${data_small}/synthetic-l5000-e1-10KPairs -l 5000 
 program26="python3 run*.py -i ${data}/synthetic-l5000-e1-1MPairs -l 5000 -e 0.01 -n 500000 -b -d $dpu_num"
 program27="python3 run*.py -i ${data}/synthetic-l10000-e1-1MPairs -l 10000 -e 0.01 -n 500000 -b -d $dpu_num"
 
-$program1
+#$program1
 #$program2
 #$program3
 #$program4
 #$program5
 #$program6
 #$program7
+$program8
 
 #$program26
 #$program27
