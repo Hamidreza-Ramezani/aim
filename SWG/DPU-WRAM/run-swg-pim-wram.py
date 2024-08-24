@@ -62,6 +62,7 @@ elif max_score < 32767:
 else:
     sizeof_offset = 4
 
+sizeof_offset = 1
 read_length = math.ceil((((read_length + nr_of_wrong_bases) + 7)/8))*8
 
 # WRAM used memory upper limit is DP-table
@@ -98,6 +99,8 @@ if NR_TASKLETS == 0:
 print("Estimated NR of tasklets: ", str(NR_TASKLETS))
 print("Estimated nr of bytes per tasklets (WRAM): ", str(memory_upper_limit))
 
+print("MRAM consumption is {}".format(memory_upper_limit_mram))
+print("WRAM consumption is {}".format(memory_upper_limit))
 
 # If the number of tasklets is overrided in the command line
 if args["nr_of_tasklets"] is not None:
@@ -109,6 +112,7 @@ if args["nr_of_tasklets"] is not None:
 if memory_upper_limit >= 62000:
     memory_upper_limit = 62000
 
+print("WRAM consumption is {}".format(memory_upper_limit))
 print("Number of allocated tasklets: ", str(NR_TASKLETS))
 print("Number of allocated bytes per tasklets: ", str(memory_upper_limit))
 

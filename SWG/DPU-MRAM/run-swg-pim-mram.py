@@ -102,7 +102,8 @@ if memory_upper_limit_mram >= 64000000:
             break
 
 memory_upper_limit_mram = math.floor(memory_upper_limit_mram)
-print("Memory consumption is {}".format(memory_upper_limit_mram))
+print("MRAM consumption is {}".format(memory_upper_limit_mram))
+print("WRAM consumption is {}".format(memory_upper_limit))
 if NR_TASKLETS == 0:
     if memory_upper_limit >= (62000 - 1024):
         print("Data doesn't fit in the WRAM")
@@ -138,6 +139,7 @@ if args["nr_of_tasklets"] is not None:
 if memory_upper_limit >= 62000:
     memory_upper_limit = 62000
 
+print("WRAM consumption for each thread is {}".format(memory_upper_limit))
 print("Number of allocated tasklets: ", str(NR_TASKLETS))
 print("Number of allocated bytes per tasklets: ", str(memory_upper_limit))
 

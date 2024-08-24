@@ -68,11 +68,14 @@
 #define WRAM_SEGMENT 1024
 #endif
 
-#if MAX_SCORE < 127
+
 #define SWG_W8
-#else
-#define SWG_W16
-#endif
+
+//#if MAX_SCORE < 127
+//#define SWG_W8
+//#else
+//#define SWG_W16
+//#endif
 
 #ifdef SWG_W8
 typedef int8_t cell_size_t;

@@ -7,7 +7,7 @@ performance_log="${dir}/performance.log"
 data="/data/hamid"
 data_small="/data/hamid/small-datasets"
 
-dpu_num=("2304")
+dpu_num=("2048")
 tasklets_num=("20")
 
 #2400-DPUs
@@ -65,7 +65,7 @@ program5="python3 run*.py -i ${data}/synthetic-l1000-e1-1MPairs -l 1000 -e 0.01 
 program8="python3 run*.py -i ${data_small}/synthetic-l2000-e1-100KPairs -l 2000 -e 0.01 -n 100000 -b -d $dpu_num"
 program9="python3 run*.py -i ${data_small}/synthetic-l2500-e1-100KPairs -l 2500 -e 0.01 -n 100000 -b -d $dpu_num"
 program10="python3 run*.py -i ${data_small}/synthetic-l3000-e1-100KPairs -l 3000 -e 0.01 -n 100000 -b -d $dpu_num"
-program11="python3 run*.py -i ${data}/synthetic-l5000-e1-1MPairs -l 5000 -e 0.01 -n 1000000 -b -d $dpu_num"
+program11="python3 run*.py -i ${data}/synthetic-l50-e1-5MPairs -l 50 -e 0.01 -n 5000000 -b -d $dpu_num"
 
 
 

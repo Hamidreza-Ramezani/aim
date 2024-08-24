@@ -88,6 +88,7 @@ SOFTWARE. */
 #define WRAM_SEGMENT 1024
 #endif
 
+//#define SWG_W8
 #define SWG_W16
 
 #ifdef SWG_W8

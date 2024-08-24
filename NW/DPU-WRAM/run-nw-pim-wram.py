@@ -61,6 +61,7 @@ read_length = math.ceil((((read_length + nr_of_wrong_bases) + 7)/8))*8
 
 # WRAM used memory upper limit is DP-table
 memory_upper_limit = 100 + 2*read_length + read_length*read_length*sizeof_offset
+#memory_upper_limit = 100 + 2*read_length + read_length*read_length
 memory_upper_limit = int(math.ceil((((memory_upper_limit) + 7)/8))*8)
 
 memory_upper_limit_mram = (
@@ -79,6 +80,8 @@ for NR_TASKLETS in range(1, 21):
         NR_TASKLETS = NR_TASKLETS-1
         break
 
+print("MRAM consumption is {}".format(memory_upper_limit_mram))
+print("WRAM consumption is {}".format(memory_upper_limit))
 
 if NR_TASKLETS == 0:
     if memory_upper_limit >= (62000 - 1024):
@@ -104,6 +107,7 @@ if args["nr_of_tasklets"] is not None:
 if memory_upper_limit >= 62000:
     memory_upper_limit = 62000
 
+print("WRAM consumption for each thread is {}".format(memory_upper_limit))
 print("Number of allocated tasklets: ", str(NR_TASKLETS))
 print("Number of allocated bytes per tasklets: ", str(memory_upper_limit))
 
