@@ -57,7 +57,7 @@ program5="./build/host ${data}/synthetic-l1000-e1-5MPairs ./out 5000000"
 #eval $compile5
 #$program5
 
-program1="python3 run*.py -i ${data}/synthetic-l50-e1-5MPairs -l 50 -e 0.01 -n 5000000 -b -t 18 -d $dpu_num"
+program1="python3 run*.py -i ${data}/ERR240727-l100-e1-5MPairs -l 100 -e 0.01 -n 5000000 -b -t 18 -d $dpu_num"
 program2="python3 run*.py -i ${data}/SRR826460-l150-e1-5MPairs -l 150 -e 0.01 -n 5000000 -b -d $dpu_num"
 program3="python3 run*.py -i ${data}/SRR826471-l250-e1-5MPairs -l 250 -e 0.01 -n 5000000 -b -d $dpu_num"
 program4="python3 run*.py -i ${data}/synthetic-l500-e1-5MPairs -l 500 -e 0.01 -n 5000000 -b -d $dpu_num"

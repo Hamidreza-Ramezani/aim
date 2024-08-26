@@ -84,7 +84,7 @@ SOFTWARE. */
 #define READ_SIZE 56
 #endif
 
-#define NW_W16
+#define NW_W8
 
 #ifdef NW_W8
 typedef int8_t cell_type_t;

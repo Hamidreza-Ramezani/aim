@@ -88,7 +88,7 @@ void edit_cigar_allocate(
     edit_cigar->score = INT32_MIN;
 }
 
-void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mram_t *dpu_alloc_mram,int tasklet_id, cell_type_t *cell_cache, cell_type_t *upper_cell_cache, cell_type_t *diag_cell_cache)
+void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mram_t *dpu_alloc_mram, cell_type_t *cell_cache, cell_type_t *upper_cell_cache, cell_type_t *diag_cell_cache)
 {
     uint32_t matrix_offset = (uint32_t)DPU_MRAM_HEAP_POINTER + dpu_alloc_mram->CUR_PTR_MRAM;
     char *const operations = cigar->operations;
@@ -148,7 +148,7 @@ void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mra
     cigar->begin_offset = op_sentinel + 1;
 }
 
-void nw_compute(char *pattern, char *text, int pattern_length, int text_length, edit_cigar_t *cigar,dpu_alloc_mram_t *dpu_alloc_mram, uint32_t tasklet_id, cell_type_t *cell_cache, cell_type_t *upper_cell_cache, cell_type_t *diag_cell_cache)
+void nw_compute(char *pattern, char *text, int pattern_length, int text_length, edit_cigar_t *cigar,dpu_alloc_mram_t *dpu_alloc_mram, cell_type_t *cell_cache, cell_type_t *upper_cell_cache, cell_type_t *diag_cell_cache)
 {
     int h, v;
     int num_rows = pattern_length + 1;
@@ -244,7 +244,7 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
     cigar->score = score;
 #ifdef BACKTRACE
     // Compute traceback
-    nw_traceback(num_cols, num_rows, cigar, dpu_alloc_mram, tasklet_id, cell_cache, upper_cell_cache, diag_cell_cache);
+    nw_traceback(num_cols, num_rows, cigar, dpu_alloc_mram, cell_cache, upper_cell_cache, diag_cell_cache);
 #endif
 }
 
@@ -347,7 +347,7 @@ int main()
             }
             edit_cigar_allocate(cigar, request_w->pattern_len, request_w->text_len);
 
-            nw_compute(pattern, text, request_w->pattern_len, request_w->text_len, cigar, &dpu_alloc_mram, tasklet_id, cell_cache, upper_cell_cache, diag_cell_cache);
+            nw_compute(pattern, text, request_w->pattern_len, request_w->text_len, cigar, &dpu_alloc_mram, cell_cache, upper_cell_cache, diag_cell_cache);
 
             result_w->idx = request_w->idx;
 #ifdef BACKTRACE

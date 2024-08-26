@@ -60,8 +60,8 @@ else:
 read_length = math.ceil((((read_length + nr_of_wrong_bases) + 7)/8))*8
 
 # WRAM used memory upper limit is DP-table
-memory_upper_limit = 100 + 2*read_length + read_length*read_length*sizeof_offset
-#memory_upper_limit = 100 + 2*read_length + read_length*read_length
+#memory_upper_limit = 100 + 2*read_length + read_length*read_length*sizeof_offset
+memory_upper_limit = 100 + 2*read_length + read_length*read_length
 memory_upper_limit = int(math.ceil((((memory_upper_limit) + 7)/8))*8)
 
 memory_upper_limit_mram = (

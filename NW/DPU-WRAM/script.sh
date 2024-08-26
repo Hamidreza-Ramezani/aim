@@ -22,48 +22,16 @@ program3="./build/host ${data}/SRR826471-l250-e1-5MPairs ./out 5000000"
 program4="./build/host ${data}/synthetic-l500-e1-5MPairs ./out 5000000"
 program5="./build/host ${data}/synthetic-l1000-e1-5MPairs ./out 5000000"
 
-#rm -rf build/
-#eval $compile1
-#perf stat -e power/energy-pkg/,power/energy-ram/ $program1
-#rm -rf build/
-#eval $compile2
-#perf stat -e power/energy-pkg/,power/energy-ram/ $program2
-#rm -rf build/
-#eval $compile3
-#perf stat -e power/energy-pkg/,power/energy-ram/ $program3
-#rm -rf build/
-#eval $compile4
-#perf stat -e power/energy-pkg/,power/energy-ram/ $program4
-#rm -rf build/
-#eval $compile5
-#perf stat -e power/energy-pkg/,power/energy-ram/ $program5
-
-#rm -rf build/
-#eval $compile5
-#$program5
-#dpu-profiling memory-transfer $program1
-#rm -rf build/
-#eval $compile2
-#$program2
-#rm -rf build/
-#eval $compile3
-#$program3
-#rm -rf build/
-#eval $compile4
-#$program4
-#rm -rf build/
-#eval $compile5
-#$program5
-
 program01="python3 run*.py -i ${data}/synthetic-l75-e1-500KPairs -l 75 -e 0.01 -n 500000 -b -d $dpu_num"
 program1="python3 run*.py -i ${data}/ERR240727-l100-e1-5MPairs -l 100 -e 0.01 -n 5000000 -b -d $dpu_num"
 program2="python3 run*.py -i ${data}/SRR826460-l150-e1-5MPairs -l 150 -e 0.01 -n 5000000 -b -d $dpu_num"
 program3="python3 run*.py -i ${data}/SRR826471-l250-e1-5MPairs -l 250 -e 0.01 -n 5000000 -b -d $dpu_num"
 program4="python3 run*.py -i ${data}/synthetic-l500-e5-5MPairs -l 500 -e 0.05 -n 5000000 -b -d $dpu_num"
 program5="python3 run*.py -i ${data}/synthetic-l1000-e1-5MPairs -l 1000 -e 0.01 -n 5000000 -b -d $dpu_num"
+program6="python3 run*.py -i ${data}/synthetic-l1000-e1-100KPairs -l 1000 -e 0.01 -n 100000 -b -d $dpu_num"
 
-rm -rf build/
-$program01
+#rm -rf build/
+#$program01
 #rm -rf build/
 #$program1
 #rm -rf build/
@@ -74,6 +42,8 @@ $program01
 #$program4
 #rm -rf build/
 #$program5
+rm -rf build/
+$program6
 
 
 #tasklets_num=6
