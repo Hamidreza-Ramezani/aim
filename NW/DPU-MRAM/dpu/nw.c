@@ -163,6 +163,7 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
     int cell_offset = (matrix_offset) & (-8);
     int cell_index = ((matrix_offset)-cell_offset);
 
+    //mram_read((__mram_ptr void const *)(matrix_offset), cell_cache, CACHE_SIZE);
     cell_type_t cell = 0;
     cell_cache[cell_index] = cell;
     mram_write(cell_cache,((__mram_ptr void *)(matrix_offset)), CACHE_SIZE);
@@ -214,6 +215,8 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
             if (diag_cell_offset == left_cell_offset) {
                mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
                mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE);
+               mram_read((__mram_ptr const void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
+
                //left_cell_cache = diag_cell_cache;
                cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
                cell_type_t ins = (cell_type_t)diag_cell_cache[left_cell_index] + GAP_I;
@@ -226,6 +229,8 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
 
             mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
             mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE*2);
+            mram_read((__mram_ptr const void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
+
 
             left_cell_index = diag_cell_index + 1;
             // Del
