@@ -121,7 +121,7 @@ if args["nr_of_tasklets"] is not None:
 if memory_upper_limit >= 62000:
     memory_upper_limit = 62000
 
-#NR_TASKLETS +=1
+#NR_TASKLETS =11
 print("Number of allocated tasklets: ", str(NR_TASKLETS))
 print("Number of allocated bytes per tasklets: ", str(memory_upper_limit))
 
