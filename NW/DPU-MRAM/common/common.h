@@ -86,7 +86,7 @@ SOFTWARE. */
 
 
 
-#define NW_W16
+#define NW_W32
 
 #ifdef NW_W8
 typedef int8_t cell_type_t;

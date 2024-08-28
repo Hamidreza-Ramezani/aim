@@ -115,6 +115,9 @@ uint32_t get_reads(FILE *in, request_t *dpu_requests, char *dpu_patterns, char *
         text = line2 + 1;
         text_length = line2_length - 2;
         text[text_length] = '\0';
+        //if (nb_reads == 0){
+        // printf("read length is %d\n",text_length);
+        //}
 
         if (text_length > READ_SIZE || pattern_length > READ_SIZE)
         {
