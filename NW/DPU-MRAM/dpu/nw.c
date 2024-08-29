@@ -88,7 +88,7 @@ void edit_cigar_allocate(
     edit_cigar->score = INT32_MIN;
 }
 
-void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mram_t *dpu_alloc_mram, cell_type_t *cell_cache, cell_type_t *upper_cell_cache, cell_type_t *diag_cell_cache)
+void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mram_t *dpu_alloc_mram, cell_type_t *combined_upper_current_cache, cell_type_t *combined_diag_left_cache)
 {
     uint32_t matrix_offset = (uint32_t)DPU_MRAM_HEAP_POINTER + dpu_alloc_mram->CUR_PTR_MRAM;
     char *const operations = cigar->operations;
@@ -98,6 +98,8 @@ void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mra
     // Compute traceback
     h = num_cols - 1;
     v = num_rows - 1;
+
+    cell_type_t *cell_cache = combined_upper_current_cache + CACHE_SIZE/sizeof(cell_type_t);
 
     while (h > 0 && v > 0)
     {
@@ -113,16 +115,16 @@ void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mra
         int diag_cell_offset = ((num_cols * (h - 1) + v - 1)) & (-block_size);
         int diag_cell_index = (num_cols * (h - 1) + v - 1) & (block_size - 1);
 
-        mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
-        mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE*2);
+        mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), combined_upper_current_cache, CACHE_SIZE);
+        mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), combined_diag_left_cache, CACHE_SIZE*2);
         mram_read((__mram_ptr const void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
 
-        if (cell_cache[cell_index] == upper_cell_cache[upper_cell_index] + GAP_D)
+        if (cell_cache[cell_index] == combined_upper_current_cache[upper_cell_index] + GAP_D)
         {
             operations[op_sentinel--] = 'D';
             --v;
         }
-        else if (cell_cache[cell_index] == diag_cell_cache[diag_cell_index+1] + GAP_I)
+        else if (cell_cache[cell_index] == combined_diag_left_cache[diag_cell_index+1] + GAP_I)
         {
             operations[op_sentinel--] = 'I';
             --h;
@@ -130,7 +132,7 @@ void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mra
         else
         {
             operations[op_sentinel--] =
-                (cell_cache[cell_index] == diag_cell_cache[diag_cell_index] + MISMATCH) ? 'X' : 'M';
+                (cell_cache[cell_index] == combined_diag_left_cache[diag_cell_index] + MISMATCH) ? 'X' : 'M';
             --h;
             --v;
         }
@@ -148,7 +150,7 @@ void nw_traceback(int num_cols, int num_rows, edit_cigar_t *cigar, dpu_alloc_mra
     cigar->begin_offset = op_sentinel + 1;
 }
 
-void nw_compute(char *pattern, char *text, int pattern_length, int text_length, edit_cigar_t *cigar,dpu_alloc_mram_t *dpu_alloc_mram, cell_type_t *cell_cache, cell_type_t *upper_cell_cache, cell_type_t *diag_cell_cache)
+void nw_compute(char *pattern, char *text, int pattern_length, int text_length, edit_cigar_t *cigar,dpu_alloc_mram_t *dpu_alloc_mram, cell_type_t *combined_upper_current_cache, cell_type_t *combined_diag_left_cache)
 {
     int h, v;
     int num_rows = pattern_length + 1;
@@ -164,8 +166,8 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
     int cell_index = ((matrix_offset)-cell_offset);
 
     cell_type_t cell = 0;
-    cell_cache[cell_index] = cell;
-    mram_write(cell_cache,((__mram_ptr void *)(matrix_offset)), CACHE_SIZE);
+    combined_upper_current_cache[cell_index] = cell;
+    mram_write(combined_upper_current_cache,((__mram_ptr void *)(matrix_offset)), CACHE_SIZE);
 
     for (v = 1; v <= pattern_length; ++v)
     {
@@ -173,10 +175,10 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
         // Cell base address in the MRAM must be aligned to 8
         int cell_offset = (v) & (-block_size);
         int cell_index = v & (block_size - 1);
-        mram_read((__mram_ptr void const *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
+        mram_read((__mram_ptr void const *)(matrix_offset + cell_offset*sizeof(cell_type_t)), combined_upper_current_cache, CACHE_SIZE);
         cell = cell + GAP_D;
-        cell_cache[cell_index] = cell;
-        mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
+        combined_upper_current_cache[cell_index] = cell;
+        mram_write(combined_upper_current_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
     }
 
     cell = 0;
@@ -187,10 +189,10 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
         int cell_offset = (num_cols * h) & (-block_size);
         int cell_index = (num_cols * h) & (block_size - 1);
 
-        mram_read((__mram_ptr void const *)(matrix_offset + cell_offset*sizeof(cell_type_t)), cell_cache, CACHE_SIZE);
+        mram_read((__mram_ptr void const *)(matrix_offset + cell_offset*sizeof(cell_type_t)), combined_upper_current_cache, CACHE_SIZE);
         cell = cell + GAP_I;
-        cell_cache[cell_index] = cell;
-        mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
+        combined_upper_current_cache[cell_index] = cell;
+        mram_write(combined_upper_current_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
     }
 
     int score = 0;
@@ -319,53 +321,45 @@ void nw_compute(char *pattern, char *text, int pattern_length, int text_length, 
     {
         for (v = 1; v <= pattern_length; ++v)
         {
-            // Cell base address in the MRAM must be aligned to 8
             int cell_offset = (num_cols * h + v) & (-block_size);
             int cell_index = (num_cols * h + v) & (block_size - 1);
-
+    
             int upper_cell_offset = (num_cols * h + v - 1) & (-block_size);
             int upper_cell_index = (num_cols * h + v - 1) & (block_size - 1);
-
+    
             int left_cell_offset = ((num_cols * (h - 1) + v)) & (-block_size);
             int left_cell_index = (num_cols * (h - 1) + v) & (block_size - 1);
-
+    
             int diag_cell_offset = ((num_cols * (h - 1) + v - 1)) & (-block_size);
             int diag_cell_index = (num_cols * (h - 1) + v - 1) & (block_size - 1);
-
-            if (diag_cell_offset == left_cell_offset) {
-               mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
-               mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE);
-               //left_cell_cache = diag_cell_cache;
-               cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
-               cell_type_t ins = (cell_type_t)diag_cell_cache[left_cell_index] + GAP_I;
-               cell_type_t m_match = (cell_type_t)diag_cell_cache[diag_cell_index] + ((pattern[v - 1] == text[h - 1]) ? 0 : MISMATCH);
-               score = (cell_type_t)MIN(m_match, MIN(ins, del));
-               cell_cache[cell_index] = score;
-               mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
-               continue;
-            }
-
-            mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset*sizeof(cell_type_t)), upper_cell_cache, CACHE_SIZE);
-            mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset*sizeof(cell_type_t)), diag_cell_cache, CACHE_SIZE*2);
-
-            left_cell_index = diag_cell_index + 1;
+    
+            // Read upper and diagonal cells
+            mram_read((__mram_ptr void const *)(matrix_offset + upper_cell_offset * sizeof(cell_type_t)), combined_upper_current_cache, 2*CACHE_SIZE);
+            mram_read((__mram_ptr void const *)(matrix_offset + diag_cell_offset * sizeof(cell_type_t)), combined_diag_left_cache, 2*CACHE_SIZE);
+    
+            // Determine which cache to use for the left cell
+            cell_type_t *left_cache = (left_cell_offset == diag_cell_offset) ? combined_diag_left_cache : combined_diag_left_cache + CACHE_SIZE/sizeof(cell_type_t);
+    
+            // Determine which cache to use for the cell itself
+            cell_type_t *current_cache = (cell_offset == upper_cell_offset) ? combined_upper_current_cache : combined_upper_current_cache + CACHE_SIZE/sizeof(cell_type_t);
+    
             // Del
-            cell_type_t del = (cell_type_t)upper_cell_cache[upper_cell_index] + GAP_D;
+            cell_type_t del = (cell_type_t)combined_upper_current_cache[upper_cell_index] + GAP_D;
             // Ins
-            cell_type_t ins = (cell_type_t)diag_cell_cache[left_cell_index] + GAP_I;
+            cell_type_t ins = (cell_type_t)left_cache[left_cell_index] + GAP_I;
             // Match
-            cell_type_t m_match = (cell_type_t)diag_cell_cache[diag_cell_index] + ((pattern[v - 1] == text[h - 1]) ? 0 : MISMATCH);
-
+            cell_type_t m_match = (cell_type_t)combined_diag_left_cache[diag_cell_index] + ((pattern[v - 1] == text[h - 1]) ? 0 : MISMATCH);
+    
             score = (cell_type_t)MIN(m_match, MIN(ins, del));
-            cell_cache[cell_index] = score;
-            mram_write(cell_cache, (__mram_ptr void *)(matrix_offset + cell_offset*sizeof(cell_type_t)), CACHE_SIZE);
+            current_cache[cell_index] = score;
+            mram_write(current_cache, (__mram_ptr void *)(matrix_offset + cell_offset * sizeof(cell_type_t)), CACHE_SIZE);
         }
     }
 
     cigar->score = score;
 #ifdef BACKTRACE
     // Compute traceback
-    nw_traceback(num_cols, num_rows, cigar, dpu_alloc_mram, cell_cache, upper_cell_cache, diag_cell_cache);
+    nw_traceback(num_cols, num_rows, cigar, dpu_alloc_mram, combined_upper_current_cache, combined_diag_left_cache);
 #endif
 }
 
@@ -410,9 +404,9 @@ int main()
     char *text = (char *)mem_alloc(ROUND_UP_MULTIPLE_8(READ_SIZE));
 
     // Only 4 cell caches are needed in the WRAM
-    cell_type_t *cell_cache = (cell_type_t *)mem_alloc(CACHE_SIZE);
-    cell_type_t *diag_cell_cache = (cell_type_t *)mem_alloc(CACHE_SIZE*2);
-    cell_type_t *upper_cell_cache = (cell_type_t *)mem_alloc(CACHE_SIZE);
+    //cell_type_t *cell_cache = (cell_type_t *)mem_alloc(CACHE_SIZE);
+    cell_type_t *combined_diag_left_cache = (cell_type_t *)mem_alloc(CACHE_SIZE*2);
+    cell_type_t *combined_upper_current_cache = (cell_type_t *)mem_alloc(CACHE_SIZE*2);
     //cell_type_t *left_cell_cache = (cell_type_t *)mem_alloc(CACHE_SIZE);
 
 #ifdef BACKTRACE
@@ -468,7 +462,7 @@ int main()
             }
             edit_cigar_allocate(cigar, request_w->pattern_len, request_w->text_len);
 
-            nw_compute(pattern, text, request_w->pattern_len, request_w->text_len, cigar, &dpu_alloc_mram, cell_cache, upper_cell_cache, diag_cell_cache);
+            nw_compute(pattern, text, request_w->pattern_len, request_w->text_len, cigar, &dpu_alloc_mram, combined_upper_current_cache, combined_diag_left_cache);
 
             result_w->idx = request_w->idx;
 #ifdef BACKTRACE

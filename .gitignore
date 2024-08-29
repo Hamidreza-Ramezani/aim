@@ -24,3 +24,5 @@ Datasets/sample-l100-e1-50K
 SWG/DPU-MRAM/difference
 WFA/DPU-MRAM/upmem-database
 *difference*
+
+*.swp
